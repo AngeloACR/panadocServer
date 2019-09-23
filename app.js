@@ -16,19 +16,13 @@ const socketio = require('socket.io');
 
 const users = require('./users/routes/users');
 
-let guests;
-let count;
-let chatrooms;
-let messagesArray = [];
-
 // Ports to listen
 const testPort= 3000;
 const chatPort = 4550;
-//const prodPort = process.env.PORT || 80;
+const prodPort = process.env.PORT || 80;
 
 const myPort = testPort;
 //const myPort = prodPort;
-
 
 //Database stuff
 
@@ -108,7 +102,7 @@ const io = socketio(chatServer);
 
 /* 'connection' is a socket.io event that is triggered when a new connection is 
     made. Once a connection is made, callback is called. */
-
+// 
 io.on('connection', (socket) => { 
     socket.emit('ACK', {data: "Welcome"});
 
