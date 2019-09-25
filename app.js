@@ -11,9 +11,9 @@ const cookieSess = require('cookie-session');
 const helmet = require('helmet');
 const RateLimit = require('express-rate-limit');
 const mainServer = express();
-const chatServer = express();
+/*const chatServer = express();
 const socketio = require('socket.io');
-
+*/
 const users = require('./users/routes/users');
 
 // Ports to listen
@@ -45,7 +45,7 @@ mongoose.connection.on('error', (err) => {
 
 // Middlewares initialization
 
-// mainServer.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc) 
+mainServer.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc) 
 
 /* 
 var limiter = new RateLimit({
@@ -60,15 +60,12 @@ mainServer.use(limiter);*/
 	//mainServer compression
 
 mainServer.use(compression());
-chatServer.use(compression());
 
 	// Cors Middleware
 mainServer.use(cors());
-chatServer.use(cors());
 
 	// Body Parser Middleware
 mainServer.use(bodyParser.json());
-chatServer.use(bodyParser.json());
 
 	//Cookie session Middleware
 mainServer.use(cookieSess ({
@@ -94,6 +91,23 @@ mainServer.use('/users', users);
 
 // Index Route
 
+	//In case of error
+mainServer.get('/', (req, res) => {
+	res.send('Waiting for the party to start!');
+});
+
+const frontRoute = "public/index.html"
+
+	//Pointing to angular mainServer Need some work here
+mainServer.get('/*', (req,res) => {
+	var fileToSend = path.join(__dirname, frontRoute);
+	res.sendFile(fileToSend);
+});
+/*
+chatServer.use(compression());
+chatServer.use(cors());
+chatServer.use(bodyParser.json());
+
 const server = chatServer.listen(chatPort, () => {
     console.log("Chat server started on port: " + chatPort);
 });
@@ -113,21 +127,7 @@ io.on('connection', (socket) => {
 
 chatServer.get('/', (req, res, next) => {
 	res.send('Guess you are looking in the wrong place...');
-});
-
-	//In case of error
-mainServer.get('/', (req, res) => {
-	res.send('Waiting for the party to start!');
-});
-
-const frontRoute = "public/index.html"
-
-	//Pointing to angular mainServer Need some work here
-mainServer.get('/*', (req,res) => {
-	var fileToSend = path.join(__dirname, frontRoute);
-	res.sendFile(fileToSend);
-});
-
+});*/
 	// Start mainServer
 mainServer.listen(myPort, () => {
 	console.log('mainServer started on port ' + myPort);
