@@ -120,7 +120,7 @@ mainServer.get('/', (req, res) => {
 	res.send('Waiting for the party to start!');
 });
 
-const frontRoute = "../panaFront/index.html"
+const frontRoute = "public/index.html"
 
 	//Pointing to angular mainServer Need some work here
 mainServer.get('/*', (req,res) => {
