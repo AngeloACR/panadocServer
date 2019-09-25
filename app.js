@@ -114,8 +114,6 @@ const server = chatServer.listen(chatPort, () => {
 
 const io = socketio(chatServer);
 
-/* 'connection' is a socket.io event that is triggered when a new connection is 
-    made. Once a connection is made, callback is called. */
 // 
 io.on('connection', (socket) => { 
     socket.emit('ACK', {data: "Welcome"});
