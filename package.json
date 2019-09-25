@@ -24,7 +24,7 @@
     "passport-jwt": "*",
     "multer": "*",
     "node-schedule": "*",
-    "socket-io": "*"
+    "socket.io": "*"
   },
   "author": "Angelo Crincoli",
   "license": "ISC"
