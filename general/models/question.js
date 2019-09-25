@@ -6,7 +6,6 @@ const QuestionSchema = mongoose.Schema({
     qId: String,
     question: String,
     answer: String,
-    doctor: String,
     tags: [String],
 });
 
