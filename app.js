@@ -90,11 +90,11 @@ require('./config/passport')(passport);
 mainServer.use('/users', users);
 
 // Index Route
-
+/*
 	//In case of error
 mainServer.get('/', (req, res) => {
 	res.send('Waiting for the party to start!');
-});
+});*/
 
 const frontRoute = "public/index.html"
 
@@ -103,6 +103,12 @@ mainServer.get('/*', (req,res) => {
 	var fileToSend = path.join(__dirname, frontRoute);
 	res.sendFile(fileToSend);
 });
+
+	// Start mainServer
+mainServer.listen(myPort, () => {
+	console.log('mainServer started on port ' + myPort);
+});
+
 /*
 chatServer.use(compression());
 chatServer.use(cors());
@@ -126,7 +132,3 @@ io.on('connection', (socket) => {
 chatServer.get('/', (req, res, next) => {
 	res.send('Guess you are looking in the wrong place...');
 });*/
-	// Start mainServer
-mainServer.listen(myPort, () => {
-	console.log('mainServer started on port ' + myPort);
-});
