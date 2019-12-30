@@ -2,142 +2,225 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const config = require('../../config/database');
 const crypto = require('crypto');
+const Schema = require('mongoose').Schema;
 
-
-// User Schema
-const UserSchema = mongoose.Schema({
-	fName: {
-		type: String,
-		required: true
-	},
-	lName: {
-		type: String,
-		required: true
-	},
-	email: {
-		type: String,
-		required: true
-	},
-	username: {
-		type: String,
-		required: true
-	},
-	password: {
-		type: String,
-		required: true
-	},
-	role:{
-		type: String,
-	},
-	validToken: {
-		type: String,
-	},
-	validTime: {
-		type: Number,
-	},
-	validEmail:{
-		type: Boolean
-	},
-
+const userSchema = mongoose.Schema({
+  name: {
+    type: String,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+  mail: {
+    type: String,
+    required: true,
+  },
+  avatarSrc: {
+    type: String,
+  },
+  validToken: {
+    type: String,
+  },
+  validTime: {
+    type: Number,
+  },
+  phone: {
+    type: String,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+  },
+  doctorId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Doctor',
+  },
+  patientId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Patient',
+  },
+  createdAt: { type: Date, default: Date.now },
 });
 
-const User = module.exports = mongoose.model('User', UserSchema);
 
-module.exports.getUserById = function(id, callback){
-	User.findById(id, callback);
-};
 
-module.exports.getUserByUsername = function(username, callback){
-	const query = {username: username};
-	User.findOne(query, callback);
-};
+const User = module.exports = mongoose.model("User", userSchema);
 
-module.exports.getUserByEmail = function(email, callback){
-	const query = {email: email};
-	User.findOne(query, callback);
-};
+module.exports.comparePass = async function (candidatePassword, password) {
+  try {
+    return await bcrypt.compare(candidatePassword, password);
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports.hashPass = async function (password) {
+  try {
+    let salt = await bcrypt.genSalt(10)
+    return await bcrypt.hash(password, salt)
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports.genToken = function (username) {
+  try {
+    const hash = crypto.createHash('sha1');
 
-module.exports.getUserByRole = function(role, callback){
-	const query = {role: role};
-	User.findOne(query, callback);
-};
+    var hrTime = process.hrtime();
+    var validTime = hrTime[0] * 1000000 + hrTime[1] / 1000
 
-module.exports.addUser = function(newUser, callback){
-	bcrypt.genSalt(10, (err, salt) => {
-    	bcrypt.hash(newUser.password, salt, (err, hash) => {
-        	if(err) throw err;
-         	newUser.password = hash;
-         	newUser.save(callback);
-    	});
-    });
-};
-
-module.exports.validateUser = function(username, callback){
-	const query = {username: username};
-	User.findOneAndUpdate(query, { 
-	$set: { 
-		"validEmail": true
-		}
-	},
-	callback);
-};
-
-module.exports.deleteUser = function(userToDelete, callback){
-	const query = {username: userToDelete.username}
-	User.findOneAndRemove(query, callback);
-};
-
-module.exports.updateUser = function(updateData, callback){
-	const query = {username: updateData.username};
-	User.findOneAndUpdate(query, { 
-	$set: { 
-		"fName": updateData.fname,
-    	"lName": updateData.lname,
-    	"username": updateData.username,
-		}
-	},
-	callback);
-};
-
-module.exports.setRole = function(userToUpdate, role, callback){
-	const query = {username: userToUpdate.username};
-	User.findOneAndUpdate(query, { 
-	$set: { 
-		"role": role,
-	    }
-	},
-	callback);
-};
-
-module.exports.comparePassword = function(candidatePassword, hash, callback){
-	bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
-		if(err) throw err;
-		callback(null, isMatch);
-	});
-};
-
-module.exports.setToken = function(username, vToken, vTime, callback) {	
-	const query = {username: username};
-	User.findOneAndUpdate(query, { 
-		$set: { 
-			"validEmail": false,
-			"validToken": vToken,
-			"validTime": vTime
-    	}
-	},
-	callback);
+    var toHash = username + validTime.toString() + environment.vSecret;
+    hash.update(toHash);
+    return [hash.digest('hex'), validTime]
+  } catch (error) {
+    throw error;
+  }
 }
 
-module.exports.genToken = function(username){
-	
-	const hash = crypto.createHash('sha1');
-	
-	var hrTime = process.hrtime();
-	var validTime = hrTime[0] * 1000000 + hrTime[1] / 1000
+module.exports.addUser = async function (newUser) {
+  try {
+    let user = await this.findOne({ "mail": newUser.mail });
+    if (user) {
+      throw new Error('Email already in use');
+    } else {
+      user = await this.findOne({ "username": newUser.username });
+      if (user) {
+        throw new Error('Username already in use');
+      } else {
+        newUser.password = await newUser.hashPass(newUser.password);
+        user = await newUser.save();
+        let response = {
+          status: true,
+          values: user
+        }
+        return response
+      }
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports.authUser = async function (username, password) {
+  try {
+    let user = await this.findOne({ "username": username })
+      .populate('doctorId')
+      .populate('patientId');
+    if (!user) {
+      throw new Error("Username doesn't exist")
+    }
+    let isMatch = await user.comparePass(password, user.password)
+    if (isMatch) {
+      const token = jwt.sign(user.toJSON(), environment.authSecret, {
+        expiresIn: 604800 //1 week
+      });
+      let auth = {
+        token: token,
+        user: user,
+      }
+      return auth;
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports.deleteUser = async function (id) {
+  try {
+    const query = { "_id": id };
+    return await this.findOneAndRemove(query);
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports.updateUser = async function (data) {
+  try {
+    const query = { '_id': data.id }
+    let user = await this.findOne(query);
+    user.name = data.name;
+    user.avatarSrc = data.avatarSrc;
+    user.phone = data.phone;
+    user = await user.save();
+    let response = {
+      status: true,
+      values: user
+    }
+    return response
 
-	var toHash = username + validTime + config.vSecret;
-	hash.update(toHash);
-	return [hash.digest('hex'), validTime]
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports.getUser = async function (uid) { //Need tons of work
+  try {
+    const query = { '_id': uid }
+    let user = await this.findOne(query);
+    let response = {
+      status: true,
+      values: user
+    }
+    return response
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports.getUsers = async function () { //Need tons of work
+  try {
+    const query = {};
+    let users = await this.find(query);
+    let response = {
+      status: true,
+      values: users
+    }
+    return response
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports.setToken = async function (username) {
+  try {
+    let tokenData = this.genToken(username);
+    const query = { username: username };
+    let user = await this.findOneAndUpdate(
+      query, {
+        $set: {
+          "validEmail": false,
+          "validToken": tokenData[0],
+          "validTime": tokenData[1]
+        }
+      });
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+module.exports.validateUser = async function (username, token) {
+  try {
+    const hrTime = process.hrtime();
+    const thisTime = hrTime[0] * 1000000 + hrTime[1] / 1000
+    const maxTime = 3600 * 8 * 1000000;
+    const query = { "username": username };
 
+    let user = await this.findOne(query);
 
-};
+    if (thisTime - user.validTime < maxTime) {
+      if (user.validToken == token) {
+        user = await this.findOneAndUpdate(
+          query, {
+            $set: {
+              "validEmail": true,
+            }
+          });
+        return user;
+      } else {
+        throw new Error('Wrong token');
+      }
+    } else {
+      throw new Error('Token has expired');
+    }
+
+  } catch (error) {
+    throw error;
+  }
+}
