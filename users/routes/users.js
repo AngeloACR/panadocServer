@@ -27,9 +27,9 @@ userRouter.post('/', async (req, res) => {
 userRouter.delete('/', auth, async (req, res, next) => {
 	try {
 
-		const id = req.params.id;
+		const item = req.query.item;
 
-		let response = await User.deleteUser(id);
+		let response = await User.deleteUser(item);
 		res.status(200).json(response);
 	}
 	catch (e) {
@@ -60,12 +60,10 @@ userRouter.get('/', auth, async (req, res, next) => {
 	});
 });
 
-userRouter.get('/:tipo', auth, async (req, res, next) => {
+userRouter.get('/all', auth, async (req, res, next) => {
 	try {
 
-		const tipo = req.params.tipo;
-
-		let response = await User.getUsersByType(tipo);
+		let response = await User.getUsers();
 		res.status(200).json(response);
 	}
 	catch (e) {

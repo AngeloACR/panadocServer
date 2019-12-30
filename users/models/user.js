@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const config = require('../../config/database');
+const environment = require('../../config/environment');
 const crypto = require('crypto');
 const Schema = require('mongoose').Schema;
+const jwt = require('jsonwebtoken');
 
 const userSchema = mongoose.Schema({
   name: {
@@ -106,29 +107,32 @@ module.exports.addUser = async function (newUser) {
 module.exports.authUser = async function (username, password) {
   try {
     let user = await this.findOne({ "username": username })
-      .populate('doctorId')
-      .populate('patientId');
     if (!user) {
       throw new Error("Username doesn't exist")
     }
-    let isMatch = await user.comparePass(password, user.password)
+    let isMatch = await this.comparePass(password, user.password)
+    let auth = {}
     if (isMatch) {
       const token = jwt.sign(user.toJSON(), environment.authSecret, {
         expiresIn: 604800 //1 week
       });
-      let auth = {
-        token: token,
-        user: user,
+      auth = {
+        auth: true,
+        token: token
       }
-      return auth;
+    } else {
+      auth = {
+        auth: false
+      }
     }
+    return auth;
   } catch (error) {
     throw error;
   }
 }
-module.exports.deleteUser = async function (id) {
+module.exports.deleteUser = async function (username) {
   try {
-    const query = { "_id": id };
+    const query = { "username": username };
     return await this.findOneAndRemove(query);
   } catch (error) {
     throw error;
@@ -168,7 +172,7 @@ module.exports.getUser = async function (uid) { //Need tons of work
 module.exports.getUsers = async function () { //Need tons of work
   try {
     const query = {};
-    let users = await this.find(query);
+    let users = await this.find(query).select('name username type -_id');
     let response = {
       status: true,
       values: users

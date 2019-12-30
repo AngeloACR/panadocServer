@@ -10,12 +10,7 @@ module.exports = {
 	cSecret: 'My incredible Panadoc Session',
 	mSecret: 'My secret moves will never be discovered',
 	production: false,
-	webPort: 4200,
-	appPort: 3200,
+	landingPort: 6174,
+	appPort: 3400,
 	host: 'localhost',
-    mysqlPort: '3306',
-    mysqlUser: 'samaUser',
-    mysqlPass: 'samaven2020',
-    dbName: "samavenDB",
-	connectionLimit: 100
 }

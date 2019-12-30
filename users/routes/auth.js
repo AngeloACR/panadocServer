@@ -8,7 +8,6 @@ authRouter.post('/', async (req, res) => {
         const password = req.body.password;
         let auth = await User.authUser(username, password);
         if (auth) {
-          const msg = ` ${req.originalUrl} ${JSON.stringify(auth)}`;
           res.status(200).json(auth);
         } else {
           throw new Error('Something went wrong, try again')
