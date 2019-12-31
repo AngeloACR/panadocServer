@@ -14,8 +14,7 @@ const userSchema = mongoose.Schema({
     required: true,
   },
   mail: {
-    type: String,
-    required: true,
+    type: String
   },
   avatarSrc: {
     type: String,
@@ -83,23 +82,20 @@ module.exports.genToken = function (username) {
 
 module.exports.addUser = async function (newUser) {
   try {
-    let user = await this.findOne({ "mail": newUser.mail });
+
+    let user = await this.findOne({ "username": newUser.username });
     if (user) {
-      throw new Error('Email already in use');
+      throw new Error('Username already in use');
     } else {
-      user = await this.findOne({ "username": newUser.username });
-      if (user) {
-        throw new Error('Username already in use');
-      } else {
-        newUser.password = await newUser.hashPass(newUser.password);
-        user = await newUser.save();
-        let response = {
-          status: true,
-          values: user
-        }
-        return response
+      newUser.password = await this.hashPass(newUser.password);
+      user = await newUser.save();
+      let response = {
+        status: true,
+        values: user
       }
+      return response
     }
+
   } catch (error) {
     throw error;
   }
@@ -177,6 +173,7 @@ module.exports.getUsers = async function () { //Need tons of work
       status: true,
       values: users
     }
+    console.log(users);
     return response
   } catch (error) {
     throw error;

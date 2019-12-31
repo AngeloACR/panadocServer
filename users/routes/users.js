@@ -6,16 +6,16 @@ const User = require('../models/user');
 //**************************** USER CRUD************************************//
 userRouter.post('/', async (req, res) => {
 	try {
-
+		console.log(req.body)
 		const user = {
 			username: req.body.username,
-			email: req.body.mail,
 			password: req.body.password,
-			tipo: req.body.tipo,
+			type: req.body.type,
 		};
 
-		let newUser = await User.addUser(user);
-		res.status(200).json(newUser);
+		let newUser = new User(user)
+		let response = await User.addUser(newUser);
+		res.status(200).json(response);
 	}
 	catch (e) {
 		res.status(400).json(e.toString());

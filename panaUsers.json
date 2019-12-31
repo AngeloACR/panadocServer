@@ -1,0 +1,40 @@
+{
+    "_id": 1,
+    "name": "Admin Panadoc",
+    "username": "panaAdmin",
+    "mail": "panaAdmin@gmail.com",
+    "password": "$2y$12$yYIRX4bQfjVprUHFOHh.LuDrhmPgngeS8k1qnXMZjIRy0snej0xBC",
+    "type": "Admin"
+}
+{
+    "_id": 2,
+    "name": "Doctor Panadoc 1",
+    "username": "panaDoc",
+    "mail": "doctor1@gmail.com",
+    "password": "$2y$12$yYIRX4bQfjVprUHFOHh.LuDrhmPgngeS8k1qnXMZjIRy0snej0xBC",
+    "type": "Doctor"
+}
+{
+    "_id": 3,
+    "name": "Doctor Panadoc 2",
+    "username": "panaDoc2",
+    "mail": "doctor2@gmail.com",
+    "password": "$2y$12$yYIRX4bQfjVprUHFOHh.LuDrhmPgngeS8k1qnXMZjIRy0snej0xBC",
+    "type": "Doctor"
+}
+{
+    "_id": 4,
+    "name": "Paciente Panadoc 1",
+    "username": "panaPac",
+    "mail": "paciente1@gmail.com",
+    "password": "$2y$12$yYIRX4bQfjVprUHFOHh.LuDrhmPgngeS8k1qnXMZjIRy0snej0xBC",
+    "type": "Paciente"
+}
+{
+    "_id": 5,
+    "name": "Paciente Panadoc 1",
+    "username": "panaPac2",
+    "mail": "paciente2@gmail.com",
+    "password": "$2y$12$yYIRX4bQfjVprUHFOHh.LuDrhmPgngeS8k1qnXMZjIRy0snej0xBC",
+    "type": "Paciente"
+}
