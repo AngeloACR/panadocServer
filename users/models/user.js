@@ -82,20 +82,23 @@ module.exports.genToken = function (username) {
 
 module.exports.addUser = async function (newUser) {
   try {
-
-    let user = await this.findOne({ "username": newUser.username });
+    let user = await this.findOne({ "mail": newUser.mail });
     if (user) {
-      throw new Error('Username already in use');
+      throw new Error('Email already in use');
     } else {
-      newUser.password = await this.hashPass(newUser.password);
-      user = await newUser.save();
-      let response = {
-        status: true,
-        values: user
+      user = await this.findOne({ "username": newUser.username });
+      if (user) {
+        throw new Error('Username already in use');
+      } else {
+        newUser.password = await this.hashPass(newUser.password);
+        user = await newUser.save();
+        let response = {
+          status: true,
+          values: user
+        }
+        return response
       }
-      return response
     }
-
   } catch (error) {
     throw error;
   }
@@ -129,6 +132,7 @@ module.exports.authUser = async function (username, password) {
 module.exports.deleteUser = async function (username) {
   try {
     const query = { "username": username };
+    console.log(username);
     return await this.findOneAndRemove(query);
   } catch (error) {
     throw error;
@@ -168,12 +172,11 @@ module.exports.getUser = async function (uid) { //Need tons of work
 module.exports.getUsers = async function () { //Need tons of work
   try {
     const query = {};
-    let users = await this.find(query).select('name username type -_id');
+    let users = await this.find(query).select('username type -_id');
     let response = {
       status: true,
       values: users
     }
-    console.log(users);
     return response
   } catch (error) {
     throw error;
