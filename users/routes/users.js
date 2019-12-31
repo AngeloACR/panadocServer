@@ -6,7 +6,6 @@ const User = require('../models/user');
 //**************************** USER CRUD************************************//
 userRouter.post('/', async (req, res) => {
 	try {
-		console.log(req.body)
 		const user = {
 			username: req.body.username,
 			name: req.body.name,

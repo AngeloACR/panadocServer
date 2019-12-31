@@ -2982,7 +2982,8 @@ var routes = [
     {
         path: '',
         redirectTo: 'agenda',
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [_auth_auth_guard__WEBPACK_IMPORTED_MODULE_4__["AuthGuard"]]
     },
     {
         path: 'logout',
@@ -2999,22 +3000,27 @@ var routes = [
     {
         path: 'mi-perfil',
         component: _components_public_profile_public_profile_component__WEBPACK_IMPORTED_MODULE_6__["PublicProfileComponent"],
+        canActivate: [_auth_auth_guard__WEBPACK_IMPORTED_MODULE_4__["AuthGuard"]]
     },
     {
         path: 'perfil',
         component: _components_my_profile_my_profile_component__WEBPACK_IMPORTED_MODULE_5__["MyProfileComponent"],
+        canActivate: [_auth_auth_guard__WEBPACK_IMPORTED_MODULE_4__["AuthGuard"]]
     },
     {
         path: 'agenda',
         loadChildren: './mguide/mguide.module#MguideModule',
+        canActivate: [_auth_auth_guard__WEBPACK_IMPORTED_MODULE_4__["AuthGuard"]]
     },
     {
         path: 'preguntas',
-        loadChildren: './ask-adoc/ask-adoc.module#AskADocModule'
+        loadChildren: './ask-adoc/ask-adoc.module#AskADocModule',
+        canActivate: [_auth_auth_guard__WEBPACK_IMPORTED_MODULE_4__["AuthGuard"]]
     },
     {
         path: 'mensajeria',
-        loadChildren: './communications/communications.module#CommunicationsModule'
+        loadChildren: './communications/communications.module#CommunicationsModule',
+        canActivate: [_auth_auth_guard__WEBPACK_IMPORTED_MODULE_4__["AuthGuard"]]
     },
     {
         path: 'auth',
@@ -3389,7 +3395,7 @@ var AuthGuard = /** @class */ (function () {
            }); */
     }
     AuthGuard.prototype.canActivate = function (route, state) {
-        this.isAuth = this.auth.isAuthenticated();
+        this.isAuth = true; //this.auth.isAuthenticated();
         if (this.isAuth) {
             return true;
         }
