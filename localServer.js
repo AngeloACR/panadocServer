@@ -10,6 +10,8 @@ const RateLimit = require('express-rate-limit');
 const app = express();
 
 const users = require('./users/routes/users');
+const patients = require('./users/routes/patients');
+const doctors = require('./users/routes/doctors');
 const mails = require('./users/routes/mails');
 const auth = require('./users/routes/auth');
 const general = require('./general/routes/general');
@@ -58,6 +60,8 @@ module.exports.init = function (folder, thePath, port) {
 	//Adding routes
 
 	app.use('/users', users);
+	app.use('/doctors', doctors);
+	app.use('/patients', patients);
 	app.use('/mails', mails);
 	app.use('/general', general);
 	app.use('/auth', auth);

@@ -4,7 +4,7 @@ const nxServer = require('./nxServer');
 const landingServer = require('./landingServer');
 const path = require('path');
 
-const localPort = 3400;
+const localPort = 3800;
 const localFolder = './public/panaAppNx';
 const localPath = localFolder + '/index.html';
 const localApp = nxServer.init(localFolder, localPath, localPort);
@@ -15,7 +15,7 @@ localApp.listen(localPort, () => {
 	console.log('Server running at: ' + localPort);
 });
 
-const local2Port = 3800;
+const local2Port = 3400;
 const local2Folder = './public/panaFront';
 const local2Path = local2Folder + '/index.html';
 const local2App = localServer.init(local2Folder, local2Path, local2Port);
@@ -26,7 +26,7 @@ local2App.listen(local2Port, () => {
 
 
 const landingPort = 6174;
-const landingFolder = './public/panaLandNx';
+const landingFolder = './public/panaLand';
 const landingPath = landingFolder + '/index.html';
 const landingApp = landingServer.init(landingFolder, landingPort);
 

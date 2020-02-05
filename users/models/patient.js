@@ -42,6 +42,7 @@ module.exports.addPatient = async function (newPatient) {
     return response;
   } catch (error) { throw error; }
 }
+
 module.exports.addQuestion = async function (pId, qId) {
   try {
     const query = { '_id': pId };
@@ -85,14 +86,14 @@ module.exports.getPatients = async function () {
   try {
     const query = {};
     let patients = await this.find(query)
-      .populate({ path: 'questionsId', populate: 'answerId' })
+      //.populate({ path: 'questionsId', populate: 'answerId' })
       //        .populate('mhsId')
-      .populate('appointments');
+      //.populate('appointments');
       let response = {
         status: true,
         values: patients
       }
-      return patients;  
+      return response;  
     } catch (error) { throw error; }
 }
 module.exports.getPatient = async function (pId) {

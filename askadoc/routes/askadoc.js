@@ -3,8 +3,8 @@ const askadocRouter = express.Router();
 const auth = require("../../users/auth/auth");
 const Question = require('../models/question');
 const Answer = require('../models/answer');
-const Patient = require('../../clinica/models/patient');
-const Doctor = require('../../clinica/models/doctor');
+const Patient = require('../../users/models/patient');
+const Doctor = require('../../users/models/doctor');
 
 
 

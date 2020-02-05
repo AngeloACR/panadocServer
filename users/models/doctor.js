@@ -3,9 +3,11 @@ const config = require('../../config/database');
 const Schema = require('mongoose').Schema;
 
 const doctorSchema = mongoose.Schema({
-  userId: {
+  username: {
+/*     type: String,
+    ref: 'User' */
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref:'User'    
   },
   speciality: {
     type: String,
@@ -56,10 +58,12 @@ module.exports.fillUser = async function (id) {
     return await this.findOne(query).populate('userId');
   } catch (error) { throw error; }
 }
+
 module.exports.addDoctor = async function (newDoctor) {
   try {
     let doctor = await newDoctor.save();
     doctor = await this.fillUser(doctor._id);
+    console.log(doctor);
     let response = {
       status: true,
       values: doctor
@@ -67,14 +71,15 @@ module.exports.addDoctor = async function (newDoctor) {
     return response;
   } catch (error) { throw error; }
 }
+
 module.exports.getDoctors = async function () {
   try {
     const query = {};
     let doctors = await this.find(query)
-      .populate({ path: 'questionsId', populate: 'answerId' })
+      //.populate({ path: 'questionsId', populate: 'answerId' })
       //        .populate('mhsId')
       //        .populate('reviewsId')
-      .populate('appointments');
+      //.populate('appointments');
     let response = {
       status: true,
       values: doctors
