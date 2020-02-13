@@ -27,7 +27,7 @@ userRouter.post('/', async (req, res) => {
 // Delete user
 userRouter.delete('/', auth, async (req, res, next) => {
 	try {
-
+		console.log('here');
 		const item = req.query.item;
 
 		let response = await User.deleteUser(item);

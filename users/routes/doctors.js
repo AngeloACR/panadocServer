@@ -17,17 +17,18 @@ userRouter.post('/', /*auth,*/ async (req, res) => {
 		let newUser = new User(user)
 		let response = await User.addUser(newUser);
 		const doctor = {
-			userId: req.body.userId,
+			userId: response.values._id,
 			speciality: req.body.speciality,
 			summary: req.body.summary,
 			experience: req.body.experience,
 			addr: req.body.addr,
 		};	
-		
+		console.log(doctor);
 		let newDoctor = new Doctor(doctor);
+		console.log(newDoctor);
 		newDoctor = await Doctor.addDoctor(newDoctor);
 		const msg = ` ${req.originalUrl} ${JSON.stringify(newDoctor)}`;
-		res.status(200).json(response);
+		res.status(200).json(newDoctor);
 	}	
 	catch (e) {
 		res.status(400).json(e.toString());
@@ -37,8 +38,7 @@ userRouter.post('/', /*auth,*/ async (req, res) => {
 
 userRouter.get('/all', /*auth,*/ async (req, res) => {
 	try {
-		let response = await Doctor.getDoctors()
-		console.log(response)
+		let response = await Doctor.getDoctors();
 		if (response.values && response.values.length) {
 		} else {
 			throw new Error('There are no doctors')

@@ -27,7 +27,8 @@ const Patient = module.exports = mongoose.model("Patient", patientSchema);
 module.exports.fillUser = async function (id) {
   try {
     const query = { '_id': id }
-    return await this.findOne(query).populate('userId');
+    return await this.findOne(query)
+      .populate({ path: 'userId', select: 'username mail type name' });
   } catch (error) { throw error; }
 }
 
@@ -86,28 +87,29 @@ module.exports.getPatients = async function () {
   try {
     const query = {};
     let patients = await this.find(query)
-      //.populate({ path: 'questionsId', populate: 'answerId' })
-      //        .populate('mhsId')
-      //.populate('appointments');
-      let response = {
-        status: true,
-        values: patients
-      }
-      return response;  
-    } catch (error) { throw error; }
+      .populate({ path: 'userId', select: 'username mail type name' })
+    //.populate({ path: 'questionsId', populate: 'answerId' })
+    //        .populate('mhsId')
+    //.populate('appointments');
+    let response = {
+      status: true,
+      values: patients
+    }
+    return response;
+  } catch (error) { throw error; }
 }
 module.exports.getPatient = async function (pId) {
   try {
     const query = { '_id': pId };
     let patient = await this.findOne(query)
-      .populate({ path: 'questionsId', populate: 'answerId' })
+      //      .populate({ path: 'questionsId', populate: 'answerId' })
       //        .populate('mhsId')
-      .populate('appointmentsId')
-      .populate('userId');
-      let response = {
-        status: true,
-        values: patient
-      }
-      return response;
+      //   .populate('appointmentsId')
+      .populate({ path: 'userId', select: 'username mail type name' })
+    let response = {
+      status: true,
+      values: patient
+    }
+    return response;
   } catch (error) { throw error; }
 }

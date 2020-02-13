@@ -3,7 +3,7 @@ const config = require('../../config/database');
 const Schema = require('mongoose').Schema;
 
 const doctorSchema = mongoose.Schema({
-  username: {
+  userId: {
 /*     type: String,
     ref: 'User' */
     type: Schema.Types.ObjectId,
@@ -11,20 +11,16 @@ const doctorSchema = mongoose.Schema({
   },
   speciality: {
     type: String,
-    required: true,
     //    ref: 'Speciality',
   },
   summary: {
     type: String,
-    required: true,
   },
   experience: {
     type: String,
-    required: true,
   },
   addr: {
     type: String,
-    required: true,
   },
   reviews: [{
     type: Schema.Types.ObjectId,
@@ -55,15 +51,15 @@ const Doctor = module.exports = mongoose.model("Doctor", doctorSchema);
 module.exports.fillUser = async function (id) {
   try {
     const query = { '_id': id }
-    return await this.findOne(query).populate('userId');
+    return await this.findOne(query)
+    .populate({ path: 'userId', select: 'username mail type name' });
   } catch (error) { throw error; }
 }
 
 module.exports.addDoctor = async function (newDoctor) {
   try {
     let doctor = await newDoctor.save();
-    doctor = await this.fillUser(doctor._id);
-    console.log(doctor);
+//    doctor = await this.fillUser(doctor._id);
     let response = {
       status: true,
       values: doctor
@@ -76,6 +72,7 @@ module.exports.getDoctors = async function () {
   try {
     const query = {};
     let doctors = await this.find(query)
+    .populate({ path: 'userId', select: 'username mail type name' })
       //.populate({ path: 'questionsId', populate: 'answerId' })
       //        .populate('mhsId')
       //        .populate('reviewsId')
@@ -91,12 +88,12 @@ module.exports.getDoctor = async function (dId) {
   try {
     const query = { '_id': dId };
     let doctor = await this.findOne(query)
-      .populate({ path: 'questionsId', populate: 'answerId' })
+//      .populate({ path: 'questionsId', populate: 'answerId' })
       //        .populate('mhsId')
       //        .populate('reviewsId')
-      .populate('appointmentsId')
-      .populate('userId');
-    let response = {
+  //    .populate('appointmentsId')
+  .populate({ path: 'userId', select: 'username mail type name' })
+  let response = {
       status: true,
       values: doctor
     }
