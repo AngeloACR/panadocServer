@@ -1,0 +1,1 @@
+html{scroll-behavior:smooth}body{margin:0}.box{position:relative;display:block;overflow:hidden;width:100%}.boxA{height:72vh}.boxB{height:92vh}.boxC{height:50vh}.bgDark{background-color:#0084b6}.bgGreen{background-color:#33ba9a}.bgLight{background-color:#f60}@media only screen and (max-width:600px){.boxB,.boxC{height:auto}}
