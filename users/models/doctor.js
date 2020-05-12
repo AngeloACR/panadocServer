@@ -51,15 +51,18 @@ const Doctor = module.exports = mongoose.model("Doctor", doctorSchema);
 module.exports.fillUser = async function (id) {
   try {
     const query = { '_id': id }
-    return await this.findOne(query)
-    .populate({ path: 'userId', select: 'username mail type name' });
+    let doctor = await this.findOne(query).populate('userId');
+    doctor.userId['doctorId'] = id;
+    let user = doctor.userId.save();
+    return doctor
   } catch (error) { throw error; }
 }
+
 
 module.exports.addDoctor = async function (newDoctor) {
   try {
     let doctor = await newDoctor.save();
-//    doctor = await this.fillUser(doctor._id);
+    doctor = await this.fillUser(doctor._id);
     let response = {
       status: true,
       values: doctor
@@ -86,7 +89,7 @@ module.exports.getDoctors = async function () {
 }
 module.exports.getDoctor = async function (dId) {
   try {
-    const query = { '_id': dId };
+    const query = { 'userId': dId };
     let doctor = await this.findOne(query)
 //      .populate({ path: 'questionsId', populate: 'answerId' })
       //        .populate('mhsId')

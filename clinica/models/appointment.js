@@ -18,11 +18,18 @@ const appointmentSchema = mongoose.Schema({
   patientId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'Patient',
+    ref: 'User',
   },
   length: {
     type: Number,
     required: true,
+  },
+  info: {
+    type: String,
+    required: true,
+  },
+  ref: {
+    type: String,
   },
 });
 
@@ -61,14 +68,25 @@ module.exports.getLength = async function (date1, date2) {
   }
 }
 
+module.exports.getFinalDate = async function (initialDate, length) {
+  try {
+    const dateInMinutes = initialDate.getMinutes();
+    let finalDate = new Date();
+    finalDate.setMinutes( dateInMinutes + length );
+    return finalDate;
+  } catch (e) {
+    throw e;
+  }
+}
+
 module.exports.addAppointment = async function (newAppointment) {
   try {
     const isAvailable = await this.isAvailable(newAppointment.doctorId, newAppointment.patientId, newAppointment.initDate);
     if (isAvailable) {
-      let length = await newAppointment.getLength(newAppointment['initDate'], newAppointment['finishDate'])
-      newAppointment.length = length;
+      let finalDate = await this.getFinalDate(newAppointment['initDate'], newAppointment['length'])
+      newAppointment.finalDate = finalDate;
       let appointment = await newAppointment.save();
-      appointment = await this.fillChilds(appointment._id);
+//      appointment = await this.fillChilds(appointment._id);
       let response = {
         status: true,
         values: appointment
@@ -88,6 +106,22 @@ module.exports.fillChilds = async function (aId) {
   let doctor = appointment.doctorId.save();
   return appointment;
 }
+
+module.exports.getAppointments = async function () {
+  try {
+    const query = {};
+    let appointments = await this.find(query)
+    .populate({ path: 'doctorId', populate: 'userId'})
+    .populate({ path: 'patientId', populate: 'userId'})
+    console.log(appointments);
+    let response = {
+      status: true,
+      values: appointments
+    }
+    return response;
+  } catch (error) { throw error; }
+}
+
 module.exports.getAppointmentsByDoctor = async function (doctorId) {
   try {
     const query = { 'doctorId': doctorId };

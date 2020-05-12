@@ -1,10 +1,10 @@
 const express = require('express');
-const userRouter = express.Router();
+const patientRouter = express.Router();
 const auth = require("../auth/auth");
 const User = require('../models/user');
 const Patient = require('../models/patient');
 
-userRouter.post('/', /*auth,*/ async (req, res) => {
+patientRouter.post('/', /*auth,*/ async (req, res) => {
 	try {
 		const user = {
 			username: req.body.username,
@@ -13,13 +13,13 @@ userRouter.post('/', /*auth,*/ async (req, res) => {
 			password: req.body.password,
 			type: req.body.type,
 		};
-		let newUser = new User(user)
+		let newUser = new User(user);
 		let response = await User.addUser(newUser);
 		const patient = {
 			userId: response.values._id,
 		};
 		let newPatient = new Patient(patient);
-		newPatient = await Patient.addPatient(newPatient);
+		response = await Patient.addPatient(newPatient);
 		res.status(200).json(response);
 	}
 	catch (e) {
@@ -28,10 +28,9 @@ userRouter.post('/', /*auth,*/ async (req, res) => {
 });
 
 
-userRouter.get('/all', /*auth,*/ async (req, res) => {
+patientRouter.get('/all', auth, async (req, res) => {
 	try {
 		let response = await Patient.getPatients();
-		console.log(response);
 		if (response.values && response.values.length) {
 		} else {
 			throw new Error('There are no patients')
@@ -44,7 +43,7 @@ userRouter.get('/all', /*auth,*/ async (req, res) => {
 });
 
 
-userRouter.get('/:patientId', auth, async (req, res) => {
+patientRouter.get('/:patientId', auth, async (req, res) => {
 	try {
 		const patientId = req.params.patientId;
 		const patient = await Patient.getPatient(patientId);
@@ -57,29 +56,8 @@ userRouter.get('/:patientId', auth, async (req, res) => {
 });
 
 
-//**************************** USER CRUD************************************//
-userRouter.post('/', async (req, res) => {
-	try {
-		const user = {
-			username: req.body.username,
-			name: req.body.name,
-			mail: req.body.mail,
-			password: req.body.password,
-			type: req.body.type,
-		};
-
-		let newUser = new User(user)
-		let response = await User.addUser(newUser);
-		res.status(200).json(response);
-	}
-	catch (e) {
-		res.status(400).json(e.toString());
-	}
-});
-
-
 // Delete user
-userRouter.delete('/', auth, async (req, res, next) => {
+patientRouter.delete('/', auth, async (req, res, next) => {
 	try {
 
 		const item = req.query.item;
@@ -93,7 +71,7 @@ userRouter.delete('/', auth, async (req, res, next) => {
 });
 
 // Update user, NEED TO IMPROVE
-userRouter.put('/', auth, async (req, res, next) => {
+patientRouter.put('/', auth, async (req, res, next) => {
 	try {
 		const user = req.user;
 		const updateData = req.body.updateData;
@@ -108,23 +86,4 @@ userRouter.put('/', auth, async (req, res, next) => {
 
 });
 
-// Get User
-userRouter.get('/', auth, async (req, res, next) => {
-	return res.json({
-		user: req.user
-	});
-});
-
-userRouter.get('/all', auth, async (req, res, next) => {
-	try {
-
-		let response = await User.getUsers();
-		res.status(200).json(response);
-	}
-	catch (e) {
-		res.status(400).json(e.toString());
-	}
-
-});
-
-module.exports = userRouter;
+module.exports = patientRouter;

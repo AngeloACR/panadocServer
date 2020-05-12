@@ -27,8 +27,10 @@ const Patient = module.exports = mongoose.model("Patient", patientSchema);
 module.exports.fillUser = async function (id) {
   try {
     const query = { '_id': id }
-    return await this.findOne(query)
-      .populate({ path: 'userId', select: 'username mail type name' });
+    let patient = await this.findOne(query).populate('userId');
+    patient.userId['patientId'] = id;
+    let user = patient.userId.save();
+    return patient
   } catch (error) { throw error; }
 }
 

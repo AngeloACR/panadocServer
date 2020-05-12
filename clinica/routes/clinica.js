@@ -1,10 +1,10 @@
 const express = require('express');
 const clinicaRouter = express.Router();
 const auth = require("../../users/auth/auth");
-const User = require('../models/mh');
+const mh = require('../models/mh');
    
 
-clinicaRouter.get('/dAppointments/:doctorId', /*auth,*/ async (req, res) => {
+clinicaRouter.get('/dAppointments/:doctorId', auth, async (req, res) => {
 	try {
 		const doctorId = req.params.doctorId;
 		const appointments = await Appointment.getAppointmentsByDoctor(doctorId);
@@ -22,7 +22,7 @@ clinicaRouter.get('/dAppointments/:doctorId', /*auth,*/ async (req, res) => {
 });
 
 
-clinicaRouter.get('/pAppointments/:patientId', /*auth,*/ async (req, res) => {
+clinicaRouter.get('/pAppointments/:patientId', auth, async (req, res) => {
 	try {
 		const patientId = req.params.patientId;
 		const appointments = await Appointment.getAppointmentsByPatient(patientId);
@@ -41,7 +41,7 @@ clinicaRouter.get('/pAppointments/:patientId', /*auth,*/ async (req, res) => {
 
 
 
-clinicaRouter.post('/appointment', /*auth,*/ async (req, res) => {
+clinicaRouter.post('/appointment', auth, async (req, res) => {
 	try {
 
 		const appointment = {
@@ -64,7 +64,7 @@ clinicaRouter.post('/appointment', /*auth,*/ async (req, res) => {
 });
 
 
-clinicaRouter.put('/appointment/:appointmentId', /*auth,*/ async (req, res) => {
+clinicaRouter.put('/appointment/:appointmentId', auth, async (req, res) => {
 	try {
 		const appointmentId = req.params.appointmentId;
 		sendOk(` ${req.originalUrl} ${appointmentId}`, res, appointmentId)
@@ -77,7 +77,7 @@ clinicaRouter.put('/appointment/:appointmentId', /*auth,*/ async (req, res) => {
 
 
 
-clinicaRouter.delete('/appointment/:appointmentId', /*auth,*/ async (req, res) => {
+clinicaRouter.delete('/appointment/:appointmentId', auth, async (req, res) => {
 	try {
 		const appointmentId = req.params.appointmentId;
 		res.status(200).json(response);
@@ -88,7 +88,7 @@ clinicaRouter.delete('/appointment/:appointmentId', /*auth,*/ async (req, res) =
 });
 
 
-clinicaRouter.post('/review', /*auth,*/ async (req, res) => {
+clinicaRouter.post('/review', auth, async (req, res) => {
 	try {
 		const review = req.body;
 		sendOk(` ${req.originalUrl} ${JSON.stringify(review)}`, res, review)
