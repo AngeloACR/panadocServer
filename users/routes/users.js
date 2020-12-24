@@ -28,7 +28,7 @@ userRouter.post('/', async (req, res) => {
 userRouter.delete('/', auth, async (req, res, next) => {
 	try {
 		const item = req.query.item;
-
+		console.log(item);
 		let response = await User.deleteUser(item);
 		res.status(200).json(response);
 	}
@@ -40,10 +40,24 @@ userRouter.delete('/', auth, async (req, res, next) => {
 // Update user, NEED TO IMPROVE
 userRouter.put('/', auth, async (req, res, next) => {
 	try {
-		const user = req.user;
 		const updateData = req.body.updateData;
 
 		let response = await User.updateUser(updateData);
+		res.status(200).json(response);
+	}
+	catch (e) {
+		res.status(400).json(e.toString());
+	}
+
+
+});
+
+userRouter.put('/password', auth, async (req, res, next) => {
+	try {
+		const username = req.body.username;
+		const password = req.body.password;
+
+		let response = await User.updatePassword(username, password);
 		res.status(200).json(response);
 	}
 	catch (e) {

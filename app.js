@@ -6,7 +6,7 @@ const path = require('path');
 
 const connection = db.initConnect();
 
-/* const localPort = 3800;
+const localPort = 3800;
 const localFolder = './public/panaAppNx';
 const localPath = localFolder + '/index.html';
 const localApp = nxServer.init(localFolder, localPath, localPort);
@@ -15,7 +15,7 @@ const localApp = nxServer.init(localFolder, localPath, localPort);
 localApp.listen(localPort, () => {
 	console.log('Server running at: ' + localPort);
 });
- */
+
 const local2Port = 3400;
 const local2Folder = './public/panaFront';
 const local2Path = local2Folder + '/index.html';

@@ -11,18 +11,30 @@ const patientSchema = mongoose.Schema({
   mhsId: [{
     type: Schema.Types.ObjectId,
     ref: 'MH',
+    default: [],
   }],
-  appointments: [{
+  appointmentsId: [{
     type: Schema.Types.ObjectId,
     ref: 'Appointment',
+    default: [],
   }],
   questionsId: [{
     type: Schema.Types.ObjectId,
     ref: 'Question',
+    default: [],
   }],
 });
 
 const Patient = module.exports = mongoose.model("Patient", patientSchema);
+
+module.exports.deletePatient = async function (id) {
+    try {
+        const query = { "_id": id };
+        return await this.findOneAndRemove(query);
+    } catch (error) {
+        throw error;
+    }
+}
 
 module.exports.fillUser = async function (id) {
   try {
@@ -68,7 +80,7 @@ module.exports.addMH = async function (pId, mhId) {
     if (patient) {
       return true;
     } else {
-      throw new Error('Cannot add appointment to patient');
+      throw new Error('No se pudo reservar la cita, intente de nuevo');
     }
   } catch (error) { throw error; }
 }
@@ -81,7 +93,7 @@ module.exports.addAppointment = async function (pId, aId) {
     if (patient) {
       return true;
     } else {
-      throw new Error('Cannot add appointment to patient');
+      throw new Error('No se pudo reservar la cita, intente de nuevo');
     }
   } catch (error) { throw error; }
 }
@@ -114,4 +126,34 @@ module.exports.getPatient = async function (pId) {
     }
     return response;
   } catch (error) { throw error; }
+}
+
+module.exports.updatePatient = async function (data) {
+    try {
+        const query = { 'userId': data.id }
+        let patient = await this.findOne(query)
+        .populate('userId');
+        patient.userId.name = data.name;
+        let username = data.username
+        if(username != patient.userId.username){
+          let user = await this.findOne({ "username": data.username });
+          if (user) {
+              throw new Error('Nombre de usuario no disponible');
+          }
+          patient.userId.username = data.username;
+        }
+        let user = await patient.userId.save();
+        let response = {
+            status: true,
+            values: user
+        }
+        return response
+
+    } catch (error) {
+                let response = {
+            status: false,
+            msg: error.toString().replace("Error: ", "")
+        }
+        return response
+    }
 }

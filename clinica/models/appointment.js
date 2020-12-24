@@ -18,7 +18,7 @@ const appointmentSchema = mongoose.Schema({
   patientId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'User',
+    ref: 'Patient',
   },
   length: {
     type: Number,
@@ -51,10 +51,10 @@ module.exports.isAvailable = async function (doctorId, patientId, initDate) {
       if (!appointment) {
         return true;
       } else {
-        throw new Error('Patient is not available');
+        throw new Error('Paciente no disponible para la fecha seleccionada');
       }
     } else {
-      throw new Error('Doctor is not available')
+      throw new Error('Doctor no disponible para la fecha seleccionada')
     }
   } catch (error) { throw error }
 }
@@ -79,14 +79,19 @@ module.exports.getFinalDate = async function (initialDate, length) {
   }
 }
 
+module.exports.getRef = function (date) {
+  return date.getTime();
+}
+
 module.exports.addAppointment = async function (newAppointment) {
   try {
     const isAvailable = await this.isAvailable(newAppointment.doctorId, newAppointment.patientId, newAppointment.initDate);
     if (isAvailable) {
       let finalDate = await this.getFinalDate(newAppointment['initDate'], newAppointment['length'])
       newAppointment.finalDate = finalDate;
+      newAppointment.ref = this.getRef(newAppointment['initDate'])
       let appointment = await newAppointment.save();
-//      appointment = await this.fillChilds(appointment._id);
+      appointment = await this.fillChilds(appointment._id);
       let response = {
         status: true,
         values: appointment
@@ -94,14 +99,18 @@ module.exports.addAppointment = async function (newAppointment) {
       return response;
     }
   } catch (error) {
-    throw error;
+    let response = {
+        status: false,
+        msg: error.toString().replace("Error: ", "")
+    }
+    return response
   }
 }
 module.exports.fillChilds = async function (aId) {
   const query = { '_id': aId }
   let appointment = await this.findOne(query).populate('patientId').populate('doctorId');
-  appointment.patientId['appointmenstId'].push(appointment._id);
-  appointment.doctorId['appointmenstId'].push(appointment._id);
+  appointment.patientId['appointmentsId'].push(appointment._id);
+  appointment.doctorId['appointmentsId'].push(appointment._id);
   let patient = appointment.patientId.save();
   let doctor = appointment.doctorId.save();
   return appointment;
@@ -112,8 +121,7 @@ module.exports.getAppointments = async function () {
     const query = {};
     let appointments = await this.find(query)
     .populate({ path: 'doctorId', populate: 'userId'})
-    .populate({ path: 'patientId', populate: 'userId'})
-    console.log(appointments);
+    .populate({ path: 'patientId', populate: 'userId'});
     let response = {
       status: true,
       values: appointments
@@ -125,7 +133,9 @@ module.exports.getAppointments = async function () {
 module.exports.getAppointmentsByDoctor = async function (doctorId) {
   try {
     const query = { 'doctorId': doctorId };
-    let appointments = await this.find(query);
+    let appointments = await this.find(query)
+    .populate({ path: 'doctorId', populate: 'userId'})
+    .populate({ path: 'patientId', populate: 'userId'});
     let response = {
       status: true,
       values: appointments
@@ -138,7 +148,9 @@ module.exports.getAppointmentsByDoctor = async function (doctorId) {
 module.exports.getAppointmentsByPatient = async function (patientId) {
   try {
     const query = { 'patientId': patientId };
-    let appointments = await this.find(query);
+    let appointments = await this.find(query)
+    .populate({ path: 'doctorId', populate: 'userId'})
+    .populate({ path: 'patientId', populate: 'userId'});
     let response = {
       status: true,
       values: appointments

@@ -15,11 +15,13 @@ patientRouter.post('/', /*auth,*/ async (req, res) => {
 		};
 		let newUser = new User(user);
 		let response = await User.addUser(newUser);
-		const patient = {
-			userId: response.values._id,
-		};
-		let newPatient = new Patient(patient);
-		response = await Patient.addPatient(newPatient);
+		if(response.status){
+			const patient = {
+				userId: response.values._id,
+			};
+			let newPatient = new Patient(patient);
+			response = await Patient.addPatient(newPatient);
+		}
 		res.status(200).json(response);
 	}
 	catch (e) {
@@ -31,10 +33,10 @@ patientRouter.post('/', /*auth,*/ async (req, res) => {
 patientRouter.get('/all', auth, async (req, res) => {
 	try {
 		let response = await Patient.getPatients();
-		if (response.values && response.values.length) {
+		/* if (response.values && response.values.length) {
 		} else {
 			throw new Error('There are no patients')
-		}
+		} */
 		res.status(200).json(response);
 	}
 	catch (e) {
@@ -73,10 +75,9 @@ patientRouter.delete('/', auth, async (req, res, next) => {
 // Update user, NEED TO IMPROVE
 patientRouter.put('/', auth, async (req, res, next) => {
 	try {
-		const user = req.user;
-		const updateData = req.body.updateData;
+		const updateData = req.body;
 
-		let response = await User.updateUser(updateData);
+		let response = await Patient.updatePatient(updateData);
 		res.status(200).json(response);
 	}
 	catch (e) {

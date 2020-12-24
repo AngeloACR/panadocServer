@@ -43,6 +43,10 @@ const userSchema = mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Patient',
     },
+    adminId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Admin',
+    },
     createdAt: { type: Date, default: Date.now },
 });
 
@@ -84,11 +88,11 @@ module.exports.addUser = async function (newUser) {
     try {
         let user = await this.findOne({ "mail": newUser.mail });
         if (user) {
-            throw new Error('Email already in use');
+            throw new Error('El correo ya se encuentra registrado');
         } else {
             user = await this.findOne({ "username": newUser.username });
             if (user) {
-                throw new Error('Username already in use');
+                throw new Error('Nombre de usuario no disponible');
             } else {
                 newUser.password = await this.hashPass(newUser.password);
                 user = await newUser.save();
@@ -100,15 +104,38 @@ module.exports.addUser = async function (newUser) {
             }
         }
     } catch (error) {
+        let response = {
+            status: false,
+            msg: error.toString().replace("Error: ", "")
+        }
+        return response
+    }
+}
+
+module.exports.updatePassword = async function (username, password) {
+    try {
+            let user = await this.findOne({ "username": newUser.username });
+            user.password = await this.hashPass(password);
+            user = await newUser.save();
+            let response = {
+                status: true,
+                values: user
+            }
+    }
+     catch (error) {
         throw error;
     }
 }
+
 module.exports.authUser = async function (username, password) {
     try {
         const query = { "username": username };
         let user = await this.findOne(query)
+        .populate('patientId')
+        .populate('doctorId')
+        .populate('adminId')
         if (!user) {
-            throw new Error("Username doesn't exist")
+            throw new Error("No existe ese nombre de usuario")
         }
         let isMatch = await this.comparePass(password, user.password)
         let auth = {}
@@ -117,23 +144,61 @@ module.exports.authUser = async function (username, password) {
                 expiresIn: 604800 //1 week
             });
             auth = {
-                auth: true,
+                status: true,
                 token: token
             }
         } else {
-            auth = {
-                auth: false
-            }
+            throw new Error('Contraseña inválida')
         }
         return auth;
     } catch (error) {
-        throw error;
+        let response = {
+            status: false,
+            msg: error.toString().replace("Error: ", "")
+        }
+        return response
     }
 }
 module.exports.deleteUser = async function (username) {
     try {
         const query = { "username": username };
-        return await this.findOneAndRemove(query);
+        let user = await this.findOne(query)
+        .populate('adminId')
+        .populate({ path: 'doctorId', populate: 'appointmentsId'})
+        .populate({path: 'patientId', populate: 'appointmentsId'})            
+        let appointments
+        switch (user.type) {
+            case 'Admin':
+                user.adminId.remove();
+                appointments = user.patientId.appointmentsId
+                for(let appointment of appointments){
+                    await appointment.remove();
+                };
+                user.patientId.remove()
+                break;        
+            case 'Paciente':
+                
+                appointments = user.patientId.appointmentsId
+                for(let appointment of appointments){
+                    await appointment.remove();
+                };
+                user.patientId.remove()
+                break;
+        
+            default:
+
+                appointments = user.doctorId.appointmentsId
+                for(let appointment of appointments){
+                    await appointment.remove();
+                };
+                user.doctorId.remove()
+                break;
+        }
+        let result = await user.remove();
+        let response = {
+            status: true,
+            values: result
+        }
     } catch (error) {
         throw error;
     }

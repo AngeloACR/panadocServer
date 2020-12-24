@@ -10,6 +10,7 @@ const RateLimit = require('express-rate-limit');
 const app = express();
 
 const users = require('./users/routes/users');
+const admins = require('./users/routes/admins');
 const patients = require('./users/routes/patients');
 const doctors = require('./users/routes/doctors');
 const mails = require('./users/routes/mails');
@@ -70,6 +71,7 @@ module.exports.init = function(folder, thePath, port) {
     app.use('/askadoc', askadoc);
     app.use('/clinica', clinica);
     app.use('/reservas', reservas);
+    app.use('/admins', admins);
 
     app.get('/', (req, res) => {
         res.send('We are having some troubles, please come back in a while!');

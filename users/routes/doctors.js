@@ -15,15 +15,17 @@ doctorRouter.post('/', /*auth,*/ async (req, res) => {
 		};
 		let newUser = new User(user)
 		let response = await User.addUser(newUser);
-		const doctor = {
-			userId: response.values._id,
-			speciality: req.body.speciality,
-			summary: req.body.summary,
-			experience: req.body.experience,
-			addr: req.body.addr,
-		};	
-		let newDoctor = new Doctor(doctor);
-		response = await Doctor.addDoctor(newDoctor);
+		if(response.status){
+			const doctor = {
+				userId: response.values._id,
+				speciality: req.body.speciality,
+				summary: req.body.summary,
+				experience: req.body.experience,
+				addr: req.body.addr,
+			};	
+			let newDoctor = new Doctor(doctor);
+			response = await Doctor.addDoctor(newDoctor);
+		}
 		res.status(200).json(response);
 	}	
 	catch (e) {
@@ -35,10 +37,10 @@ doctorRouter.post('/', /*auth,*/ async (req, res) => {
 doctorRouter.get('/all', /*auth,*/ async (req, res) => {
 	try {
 		let response = await Doctor.getDoctors();
-		if (response.values && response.values.length) {
+		/* if (response.values && response.values.length) {
 		} else {
 			throw new Error('There are no doctors')
-		}
+		} */
 		res.status(200).json(response);
 	}
 	catch (e) {
@@ -77,10 +79,9 @@ doctorRouter.delete('/', auth, async (req, res, next) => {
 // Update user, NEED TO IMPROVE
 doctorRouter.put('/', auth, async (req, res, next) => {
 	try {
-		const user = req.user;
-		const updateData = req.body.updateData;
+		const updateData = req.body;
 
-		let response = await User.updateUser(updateData);
+		let response = await Doctor.updateDoctor(updateData);
 		res.status(200).json(response);
 	}
 	catch (e) {

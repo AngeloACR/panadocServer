@@ -9,13 +9,12 @@ authRouter.post('/', async (req, res) => {
         let sess = req.session;
         let auth = await User.authUser(username, password);
         
-        if (auth) {
+        if (auth.status) {
           sess.isLogged = auth.auth;
           sess.jwToken = auth.token;
-          res.status(200).json(auth);
         } else {
-          throw new Error('Something went wrong, try again')
         }
+          res.status(200).json(auth);
       } catch (e) {
         res.status(400).json(e.toString());
     }

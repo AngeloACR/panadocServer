@@ -19,7 +19,9 @@ reservasRouter.get('/doctor/:doctorId', auth, async (req, res) => {
 reservasRouter.get('/patient/:patientId', auth, async (req, res) => {
 	try {
 		const patientId = req.params.patientId;
+		console.log(patientId)
 		const response = await Appointment.getAppointmentsByPatient(patientId);
+		console.log(response)
 		/* if (appointments && appointments.length) {
 		} else {
 			throw ('There are not appointments for this patient')
@@ -69,9 +71,10 @@ reservasRouter.put('/:appointmentId', auth, async (req, res) => {
 
 
 
-reservasRouter.delete('/:appointmentId', auth, async (req, res) => {
+reservasRouter.delete('/', auth, async (req, res) => {
 	try {
-		const appointmentId = req.params.appointmentId;
+		const item = req.query.item;
+		let response = await Appointment.removeAppointment(item);
 		res.status(200).json(response);
 	}
 	catch (e) {

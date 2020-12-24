@@ -24,19 +24,23 @@ const doctorSchema = mongoose.Schema({
   },
   reviews: [{
     type: Schema.Types.ObjectId,
-    ref: 'Review'
+    ref: 'Review',
+    default: [],
   }],
-  appointments: [{
+  appointmentsId: [{
     type: Schema.Types.ObjectId,
     ref: 'Appointment',
+    default: [],
   }],
   questionsId: [{
     type: Schema.Types.ObjectId,
     ref: 'Question',
+    default: [],
   }],
   mhsId: [{
     type: Schema.Types.ObjectId,
     ref: 'MH',
+    default: [],
   }],
   likes: {
     type: Number,
@@ -47,6 +51,16 @@ const doctorSchema = mongoose.Schema({
 });
 
 const Doctor = module.exports = mongoose.model("Doctor", doctorSchema);
+
+
+module.exports.deleteDoctor = async function (id) {
+    try {
+        const query = { "_id": id };
+        return await this.findOneAndRemove(query);
+    } catch (error) {
+        throw error;
+    }
+}
 
 module.exports.fillUser = async function (id) {
   try {
@@ -138,7 +152,41 @@ module.exports.addAppointment = async function (dId, aId) {
     if (doctor) {
       return true;
     } else {
-      throw new Error('Cannot add appointment to doctor');
+      throw new Error('No se pudo reservar la cita, intente de nuevo');
     }
   } catch (error) { throw error; }
+}
+
+module.exports.updateDoctor = async function (data) {
+    try {
+        const query = { 'userId': data.id }
+        let doctor = await this.findOne(query)
+        .populate('userId');
+        doctor.userId.name = data.name;
+        if(username != doctor.userId.username) {
+          let user = await this.findOne({ "username": data.username });
+          if (user) {
+              throw new Error('Nombre de usuario no disponible');
+          }
+          doctor.userId.username = data.username;
+        }
+        let user = await doctor.userId.save();
+        doctor.speciality = data.speciality;
+        doctor.summary = data.summary;
+        doctor.addr = data.addr;
+        doctor.experience = data.exp;
+        doctor = await doctor.save();
+        let response = {
+            status: true,
+            values: doctor
+        }
+        return response
+
+    } catch (error) {
+        let response = {
+            status: false,
+            msg: error.toString().replace("Error: ", "")
+        }
+        return response
+    }
 }
